@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container" id="main">
+
+    <div  id="page1">
+        <form method="POST" id="addpost">
+        <div id="all-posts">
+
+        </div>
+            <br>
+            <button type="submit" class="btn btn-primary">New post</button>
+        </form>
+    </div>
+
+    <div id="page2">
+        <form method="POST" id="savepost">
+            <div class="form-group">
+                <label for="post-authore">Authore</label>
+                <input type="text" class="form-control" id="post-authore" placeholder="Enter authore">
+
+                <label for="post-title">Subject</label>
+                <input type="text" class="form-control" id="post-title" placeholder="Enter subject">
+
+                <label for="post-content">Content</label>
+                <textarea class="form-control" id="post-content"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save post</button>
+        </form>
+    </div>
+
+
+</div>
+
+<script>
+    const all_pages = document.getElementById("main");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    all_pages.removeChild(page2);
+    const all_posts = document.getElementById("all-posts");
+
+    fetch('/api/resource-posts',{
+        method:'GET'
+    }).then(response => {
+        return response.json();
+    }).then(posts => {
+        for (const post of posts){
+            addPostsElements(post)
+        }
+    })
+    function addPostsElements(post){
+
+        const postDiv = document.createElement("div");
+        postDiv.innerHTML = 5 + 6;
+        const titlep = document.createElement("p");
+        const contentp = document.createElement("p");
+        const node1 = document.createTextNode(post.title);
+        const node2 = document.createTextNode(post.content);
+        titlep.appendChild(node1);
+        contentp.appendChild(node2);
+        postDiv.appendChild(titlep);
+        postDiv.appendChild(document.createElement("br"));
+        postDiv.appendChild(contentp);
+        postDiv.appendChild(document.createElement("br"));
+        postDiv.appendChild(document.createElement("hr"));
+        postDiv.appendChild(document.createElement("br"));
+
+        all_posts.appendChild(postDiv);
+    }
+
+    document.getElementById("addpost").addEventListener('submit', function (e) {
+        e.preventDefault();
+        all_pages.removeChild(page1);
+        all_pages.appendChild(page2);
+    })
+
+    document.getElementById("savepost").addEventListener('submit', function (e) {
+        e.preventDefault();
+
+
+        const autoreElement = document.getElementById('post-authore');
+        const titleElement = document.getElementById('post-title');
+        const contentElement = document.getElementById('post-content');
+
+        const  author = autoreElement.value();
+        const  title = titleElement.value();
+        const content = contentElement.value();
+
+        fetch('/api/resource-posts',{
+            method:'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                author: author,
+                title: title,
+                content: content
+            })
+        }).then(response => {
+            return response.json();
+        }).then(post => {
+            addPostsElements(post)
+            autoreElement.value = '';
+            titleElement.value = '';
+            contentElement.value = '';
+            all_pages.removeChild(page2);
+            all_pages.appendChild(page1);
+        })
+
+    })
+
+
+
+</script>
+
+</body>
+</html>
